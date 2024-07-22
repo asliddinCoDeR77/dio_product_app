@@ -1,35 +1,12 @@
-import 'package:dio_shop/blocs/products_bloc/product_bloc.dart';
-import 'package:dio_shop/data/repositorys/products_repositorys.dart';
-import 'package:dio_shop/data/services/dio_product_services.dart';
-import 'package:dio_shop/ui/screens/products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'bloc/product_bloc.dart';
+import 'bloc/product_event.dart';
+import 'service/api_service.dart';
+import 'ui/screens/product_page.dart';
 
 void main() {
-  final dioProductServices = DioProductServices();
-  runApp(
-    MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider(
-          create: (context) {
-            return ProductsRepositorys(dioProductsService: dioProductServices);
-          },
-        )
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) {
-              return ProductBloc(
-                productsRepositorys: context.read<ProductsRepositorys>(),
-              );
-            },
-          ),
-        ],
-        child: const MyApp(),
-      ),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -37,9 +14,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ProductsScreen(),
+    return BlocProvider(
+      create: (context) => ProductBloc(ApiService())..add(LoadProducts()),
+      child: MaterialApp(
+        title: 'Online Shop',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: const ProductPage(),
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }
